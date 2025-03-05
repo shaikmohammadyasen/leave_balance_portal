@@ -7,7 +7,7 @@ import LeaveBalance from './components/LeaveBalance';
 // Multi-year, multi-month structure
 const initialBalance = {
   2024: {
-  January: { SickLeave: 3, CasualLeave: 2, PaidLeave: 5, UnpaidLeave: 3 },
+    January: { SickLeave: 3, CasualLeave: 2, PaidLeave: 5, UnpaidLeave: 3 },
   February: { SickLeave: 3, CasualLeave: 2, PaidLeave: 5, UnpaidLeave: 3 },
   March: { SickLeave: 3, CasualLeave: 2, PaidLeave: 5, UnpaidLeave: 3 },
   April: { SickLeave: 3, CasualLeave: 2, PaidLeave: 5, UnpaidLeave: 3 },
@@ -21,7 +21,7 @@ const initialBalance = {
   December: { SickLeave: 3, CasualLeave: 2, PaidLeave: 5, UnpaidLeave: 3 },
   },
   2025: {
-  January: { SickLeave: 3, CasualLeave: 2, PaidLeave: 5, UnpaidLeave: 3 },
+    January: { SickLeave: 3, CasualLeave: 2, PaidLeave: 5, UnpaidLeave: 3 },
   February: { SickLeave: 3, CasualLeave: 2, PaidLeave: 5, UnpaidLeave: 3 },
   March: { SickLeave: 3, CasualLeave: 2, PaidLeave: 5, UnpaidLeave: 3 },
   April: { SickLeave: 3, CasualLeave: 2, PaidLeave: 5, UnpaidLeave: 3 },
@@ -46,15 +46,16 @@ function App() {
   );
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
-  const applyLeave = ({ employeeName, leaveType, leaveDate }) => {
-    const dateObj = new Date(leaveDate);
+  // Called when user applies for leave
+  const applyLeave = ({ employeeName, leaveType, fromDate, toDate, days }) => {
+    // Use fromDate to figure out which month & year to deduct from
+    const dateObj = new Date(fromDate);
     const year = dateObj.getFullYear();
     const monthName = dateObj.toLocaleString('en-US', { month: 'long' });
 
-    // Key must match our structure, e.g. "SickLeave"
-    const typeKey = leaveType.replace(/\s/g, '');
+    const typeKey = leaveType.replace(/\s/g, ''); // e.g. "SickLeave"
 
-    // Check if year & month exist in leaveBalance
+    // Validate month/year in the leaveBalance
     if (!leaveBalance[year] || !leaveBalance[year][monthName]) {
       alert(`No leave balance found for ${monthName} ${year}`);
       return;
@@ -66,15 +67,17 @@ function App() {
       return;
     }
 
-    // Check if enough leaves remain
-    if (leaveBalance[year][monthName][typeKey] > 0) {
+    // Check if enough leaves remain for the entire range
+    if (leaveBalance[year][monthName][typeKey] >= days) {
       // Add new request
       setLeaveRequests((prev) => [
         ...prev,
         {
           employeeName,
           leaveType,
-          leaveDate,
+          fromDate,
+          toDate,
+          daysTaken: days, // We'll display this in the table
           status: 'Pending',
         },
       ]);
@@ -86,12 +89,12 @@ function App() {
           ...prev[year],
           [monthName]: {
             ...prev[year][monthName],
-            [typeKey]: prev[year][monthName][typeKey] - 1,
+            [typeKey]: prev[year][monthName][typeKey] - days,
           },
         },
       }));
     } else {
-      alert(`❌ No remaining ${leaveType} in ${monthName} ${year}!`);
+      alert(`❌ Not enough ${leaveType} in ${monthName} ${year}!`);
     }
   };
 

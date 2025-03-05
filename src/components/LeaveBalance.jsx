@@ -93,5 +93,4 @@ LeaveBalance.propTypes = {
   setSelectedMonth: PropTypes.func.isRequired,
   setSelectedYear: PropTypes.func.isRequired,
 };
-
 export default LeaveBalance;

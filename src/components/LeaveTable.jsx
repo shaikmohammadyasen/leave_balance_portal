@@ -1,9 +1,10 @@
-import { useState } from 'react';
-import PropTypes from 'prop-types';
+import { useState } from "react";
+import PropTypes from "prop-types";
 
 const LeaveTable = ({ leaveRequests, selectedMonth, selectedYear }) => {
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
 
+  // 1) Filter by search text
   const searchedRequests = leaveRequests.filter((leave) => {
     return (
       leave.employeeName.toLowerCase().includes(search.toLowerCase()) ||
@@ -11,11 +12,11 @@ const LeaveTable = ({ leaveRequests, selectedMonth, selectedYear }) => {
     );
   });
 
+  // 2) Filter by selectedMonth & selectedYear, using the fromDate
   const filteredRequests = searchedRequests.filter((leave) => {
-    const dateObj = new Date(leave.leaveDate);
-    const monthName = dateObj.toLocaleString('en-US', { month: 'long' });
+    const dateObj = new Date(leave.fromDate); // Use fromDate to determine month
+    const monthName = dateObj.toLocaleString("en-US", { month: "long" });
     const year = dateObj.getFullYear();
-
     return monthName === selectedMonth && year === selectedYear;
   });
 
@@ -43,7 +44,9 @@ const LeaveTable = ({ leaveRequests, selectedMonth, selectedYear }) => {
               <tr className="bg-gradient-to-r from-green-500 to-blue-500 text-white text-lg">
                 <th className="border p-3">Employee Name</th>
                 <th className="border p-3">Leave Type</th>
-                <th className="border p-3">Date</th>
+                <th className="border p-3">From Date</th>
+                <th className="border p-3">To Date</th>
+                <th className="border p-3">Days</th>
                 <th className="border p-3">Status</th>
               </tr>
             </thead>
@@ -52,20 +55,22 @@ const LeaveTable = ({ leaveRequests, selectedMonth, selectedYear }) => {
                 <tr
                   key={index}
                   className={`text-center ${
-                    index % 2 === 0 ? 'bg-gray-100' : 'bg-white'
+                    index % 2 === 0 ? "bg-gray-100" : "bg-white"
                   } hover:bg-purple-200 transition-all duration-300`}
                 >
                   <td className="border p-3">{leave.employeeName}</td>
                   <td className="border p-3">{leave.leaveType}</td>
-                  <td className="border p-3">{leave.leaveDate}</td>
+                  <td className="border p-3">{leave.fromDate}</td>
+                  <td className="border p-3">{leave.toDate}</td>
+                  <td className="border p-3 font-bold text-blue-600">{leave.daysTaken}</td>
                   <td className="border p-3">
                     <span
                       className={`px-3 py-1 rounded-md text-white text-sm ${
-                        leave.status === 'Approved'
-                          ? 'bg-green-500'
-                          : leave.status === 'Pending'
-                          ? 'bg-yellow-500'
-                          : 'bg-red-500'
+                        leave.status === "Approved"
+                          ? "bg-green-500"
+                          : leave.status === "Pending"
+                          ? "bg-yellow-500"
+                          : "bg-red-500"
                       }`}
                     >
                       {leave.status}
